@@ -1,0 +1,8 @@
+kafkaConfig:
+  bootstrapServers: "localhost:9092"
+  compressionType: "gzip"
+
+ingester:
+  workerCount: 1
+  dirPath: "/tmp"
+  clientId: "client-1"
