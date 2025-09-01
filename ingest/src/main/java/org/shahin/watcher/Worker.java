@@ -48,12 +48,13 @@ public class Worker implements Runnable {
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 String line;
                 logger.info(String.format("Reading file: %s", file.getName()));
-
+                Long lineNumber = 0L;
                 while ((line = reader.readLine()) != null) {
+                    lineNumber++;
                        try {
                            String Time = CSVReader.getTime(file);
                            String EncodedStr = Parser.EncodeNetRecord(line.split(","), Time);
-                           ProducerRecord<Long, String> record = new ProducerRecord<>("network-logs", Long.parseLong(Time.split("_")[0]), EncodedStr);
+                           ProducerRecord<Long, String> record = new ProducerRecord<>("network-logs", lineNumber, EncodedStr);
                            getProducer().send(record,(metadata, exception) -> {
                                if( exception != null ) {
                                    logger.error(exception.getMessage());

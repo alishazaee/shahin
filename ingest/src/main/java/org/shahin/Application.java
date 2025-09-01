@@ -40,6 +40,9 @@ public class Application {
 
     public static ApplicationConfig loadConfig(Path yamlPath) {
         ApplicationConfig config;
+        if (!yamlPath.toFile().exists()) {
+            yamlPath = Path.of("src/main/resources/app.yaml");
+        }
         try (InputStream stream = Files.newInputStream(yamlPath)) {
             config = new Yaml().loadAs(stream, ApplicationConfig.class);
         } catch (IOException e) {

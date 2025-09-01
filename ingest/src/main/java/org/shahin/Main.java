@@ -11,8 +11,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) throws InterruptedException {
+        String filePath;
+        try {
+             filePath = args[0];
+        }
+        catch (ArrayIndexOutOfBoundsException e ) {
+            filePath = "";
+        }
+
+
         BlockingQueue<File> queue = new LinkedBlockingQueue<>();
-        ApplicationConfig Config = Application.loadConfig(Path.of(args[0]));
+        ApplicationConfig Config = Application.loadConfig(Path.of(filePath));
         Application.Start(Config,queue);
 
     }

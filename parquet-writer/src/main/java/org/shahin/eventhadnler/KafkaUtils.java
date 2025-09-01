@@ -13,6 +13,7 @@ public class KafkaUtils {
 
         props.put("bootstrap.servers", bootstrapServers);
         props.put("group.id", groupId);
+        props.put("enable.auto.commit", "true");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.LongDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("auto.offset.reset", "earliest");
