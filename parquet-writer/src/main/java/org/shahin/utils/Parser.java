@@ -16,7 +16,7 @@ public class Parser {
         }
         try {
             return NetRecordProto.NetRecord.parseFrom(byteArray);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        } catch (Exception e) {
             LoggerFactory.getLogger(Parser.class).error(e.getMessage());
             return null;
         }

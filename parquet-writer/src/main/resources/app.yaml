@@ -8,6 +8,6 @@ parquetWriterConf:
   hdfsDirPath: "hdfs://127.0.0.1:9000/data"
   parquetSizeLimit: 50
   hdfsUrl: "hdfs://localhost:9000"
-  workerNumber: 5
+  workerNumber: 2
 
-queueCapacity: 20
+queueCapacity: 1000

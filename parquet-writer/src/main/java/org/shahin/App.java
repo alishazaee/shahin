@@ -1,6 +1,7 @@
 package org.shahin;
 
-
+import org.apache.kafka.clients.consumer.Consumer;
+import org.shahin.eventhadnler.KafkaUtils;
 import org.shahin.protobuf.NetRecordProto;
 import org.shahin.configs.ApplicationConfig;
 
@@ -13,6 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.shahin.service.AckRecord;
+import org.shahin.service.KafkaRecord;
 import org.shahin.service.Reader;
 import org.shahin.service.Writer;
 import org.yaml.snakeyaml.Yaml;
@@ -21,15 +24,20 @@ public class App
 {
 
     public static void Start(ApplicationConfig config) {
-        BlockingQueue<NetRecordProto.NetRecord> queue = new LinkedBlockingQueue<>(config.getQueueCapacity());
-        Writer writer = new Writer(config,queue);
+
+        BlockingQueue<KafkaRecord<NetRecordProto.NetRecord>> Records = new LinkedBlockingQueue<>(config.getQueueCapacity());
+
+        BlockingQueue<AckRecord> Acks = new LinkedBlockingQueue<>(config.getQueueCapacity()*3);
+
+
+        Reader reader =new Reader(config,Records,Acks);
+        reader.Start();
+
         ExecutorService writerExecutor = Executors.newFixedThreadPool(config.getParquetWriterConf().getWorkerNumber());
-        writerExecutor.execute(writer);
+        for(int i =0; i< config.getParquetWriterConf().getWorkerNumber(); i++){
+            writerExecutor.execute(new Writer(config,Records,Acks));
+        }
 
-
-        Reader reader = new Reader(config,queue);
-        ExecutorService readerExecutor = Executors.newFixedThreadPool(config.getParquetWriterConf().getWorkerNumber());
-        readerExecutor.execute(reader);
     }
 
 
@@ -45,9 +53,6 @@ public class App
 
         ApplicationConfig config = loadConfig(Path.of(filePath));
         Start(config);
-//        HDFS handler = new HDFS();
-//        ParquetWriterService service = new ParquetWriterService(config,handler);
-//        service.readAndWrite();
     }
     public static ApplicationConfig loadConfig(Path yamlPath) {
         ApplicationConfig config;

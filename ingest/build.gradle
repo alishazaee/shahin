@@ -8,14 +8,19 @@ plugins {
 }
 
 dependencies {
-    implementation libs.org.apache.kafka.kafka.clients
+    implementation 'org.apache.kafka:kafka-clients:3.6.1'
     implementation project(':protobuf')
-    implementation libs.org.yaml.snakeyaml
-    implementation libs.org.slf4j.slf4j.api
-    implementation libs.ch.qos.logback.logback.classic
-    implementation libs.net.logstash.logback.logstash.logback.encoder
-    runtimeOnly libs.com.fasterxml.jackson.dataformat.jackson.dataformat.yaml
+    implementation 'org.yaml:snakeyaml:2.1'
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'ch.qos.logback:logback-classic:1.4.11'
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+    runtimeOnly 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.2'
+    implementation "com.google.protobuf:protobuf-java:3.24.3"
 }
+repositories {
+    mavenCentral()
+}
+
 application {
     // Define the main class for the application.
     mainClass = 'org.shahin.Main'

@@ -33,9 +33,13 @@ public class Application {
         Thread watcherThread = new Thread(watcher);
         watcherThread.start();
 
-        Worker worker = new Worker(fileQueue,kafkaPublisher);
         ExecutorService pool = Executors.newFixedThreadPool(appConf.getIngester().getWorkerCount());
-        pool.execute(worker);
+
+        for(int i = 0; i < appConf.getIngester().getWorkerCount(); i++){
+            Worker worker = new Worker(fileQueue,kafkaPublisher);
+            pool.execute(worker);
+
+        }
     }
 
     public static ApplicationConfig loadConfig(Path yamlPath) {

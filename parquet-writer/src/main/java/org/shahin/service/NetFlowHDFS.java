@@ -7,10 +7,12 @@ import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 import org.shahin.configs.ApplicationConfig;
 import org.shahin.protobuf.NetRecordProto;
 import org.apache.hadoop.fs.Path;
-import org.shahin.utils.Parser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
@@ -18,16 +20,19 @@ public class NetFlowHDFS implements NetFlowHandler, AutoCloseable {
     private final String BasePath;
     private final Configuration Conf;
     private final ApplicationConfig AppConfig;
-    private final BlockingQueue<NetRecordProto.NetRecord> Queue;
+    private final BlockingQueue<KafkaRecord<NetRecordProto.NetRecord>> Queue;
     private  WriteHolder holder ;
+    private final BlockingQueue<AckRecord> AckQueue;
+    private final Logger logger;
 
-
-    public NetFlowHDFS(BlockingQueue<NetRecordProto.NetRecord> queue, ApplicationConfig appConfig) {
+    public NetFlowHDFS(BlockingQueue<KafkaRecord<NetRecordProto.NetRecord>> queue, ApplicationConfig appConfig, BlockingQueue<AckRecord> AckQueue) {
         Conf = new Configuration();
         Conf.set("fs.defaultFS", appConfig.getParquetWriterConf().getHdfsUrl());
         BasePath = appConfig.getParquetWriterConf().getHdfsDirPath();
         Queue = queue;
         AppConfig = appConfig;
+        this.AckQueue = AckQueue;
+        logger = LoggerFactory.getLogger(this.getClass());
     }
 
 
@@ -37,7 +42,6 @@ public class NetFlowHDFS implements NetFlowHandler, AutoCloseable {
         String day = String.valueOf(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
         return new Path(BasePath + "/" + Year + "/" + month + "/"  + day + "/"+  UUID.randomUUID() + ".parquet");
     }
-
 
 
     private class WriteHolder{
@@ -77,26 +81,24 @@ public class NetFlowHDFS implements NetFlowHandler, AutoCloseable {
         holder = createHolder();
         for (;;) {
             try{
-                NetRecordProto.NetRecord record = Queue.take();
+                KafkaRecord<NetRecordProto.NetRecord> record = Queue.take();
                 if(holder.writer.getDataSize() / (1024.0 * 1024.0) < AppConfig.getParquetWriterConf().getParquetSizeLimit()) {
-                    holder.writer.write(record);
+                    holder.writer.write(record.getMessage());
                     holder.count += 1;
+                    AckQueue.put(new AckRecord(record.getTopic(),record.getPartition(),record.getOffset()));
                 }
                 else {
                     holder.writer.close();
                     holder = createHolder();
                 }
             } catch (IOException e) {
+                logger.error(e.getMessage());
                 throw new RuntimeException(e);
             } catch (InterruptedException e) {
+                logger.error(e.getMessage());
                 throw new RuntimeException(e);
             }
 
         }
-
     }
-
-
-
-
 }

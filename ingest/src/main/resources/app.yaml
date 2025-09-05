@@ -3,6 +3,6 @@ kafkaConfig:
   compressionType: "gzip"
 
 ingester:
-  workerCount: 1
+  workerCount: 2
   dirPath: "/tmp"
   clientId: "client-1"

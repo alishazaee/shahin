@@ -11,30 +11,47 @@ plugins {
 group = 'org.shahin'
 version = '1.0-SNAPSHOT'
 
+repositories {
+    mavenCentral()
+}
+
+
 dependencies {
-    implementation libs.com.google.protobuf.protobuf.java.x1
-    implementation libs.org.apache.hadoop.hadoop.hdfs.client
-    implementation libs.org.apache.hadoop.hadoop.mapreduce.client.core
-    implementation libs.org.apache.hadoop.hadoop.mapreduce.client.common
-    implementation libs.org.apache.avro.avro
-    implementation libs.org.apache.parquet.parquet.avro
-    implementation libs.org.apache.hadoop.hadoop.common
-    implementation libs.org.apache.hadoop.hadoop.hdfs
-    implementation libs.org.apache.avro.avro.protobuf
-    implementation libs.org.slf4j.slf4j.api
-    implementation libs.ch.qos.logback.logback.classic
-    implementation libs.net.logstash.logback.logstash.logback.encoder
+
+    implementation 'org.apache.hadoop:hadoop-hdfs-client:3.3.6'
+    implementation 'org.apache.hadoop:hadoop-mapreduce-client-core:3.3.6'
+    implementation 'org.apache.hadoop:hadoop-mapreduce-client-common:3.3.6'
+    implementation 'org.apache.hadoop:hadoop-common:3.3.6'
+    implementation 'org.apache.hadoop:hadoop-hdfs:3.3.6'
+
+    implementation 'org.apache.avro:avro:1.11.2'
+    implementation 'org.apache.parquet:parquet-avro:1.12.3'
+
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'ch.qos.logback:logback-classic:1.4.11'
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
     implementation 'org.yaml:snakeyaml:2.5'
-    implementation libs.org.apache.kafka.kafka.clients
+
+    implementation 'org.apache.kafka:kafka-clients:3.6.1'
+
     implementation project(':protobuf')
-    runtimeOnly libs.com.fasterxml.jackson.dataformat.jackson.dataformat.yaml
-    testImplementation libs.junit.junit
+
+    testImplementation 'org.mockito:mockito-core:5.19.0'
+
+    runtimeOnly 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4'
+
+    implementation "org.apache.avro:avro-protobuf:1.11.3"
+    implementation "com.google.protobuf:protobuf-java:3.24.3"
 }
 
 application {
     mainClass = 'org.shahin.App'
 }
 
+test {
+    useJUnitPlatform()
+}
 
 shadowJar {
     archiveBaseName.set('parquet-writer')

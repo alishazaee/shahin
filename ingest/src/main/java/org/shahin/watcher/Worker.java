@@ -35,6 +35,7 @@ public class Worker implements Runnable {
 
     @Override
     public void run() {
+        logger.info("Starting worker thread {}", Thread.currentThread().getName());
         for (;;) {
             File file;
             try {

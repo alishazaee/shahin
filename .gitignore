@@ -3,3 +3,10 @@ target/
 build/
 .idea/
 .gradle/
+buildSrc/
+.mvn/
+caches/
+daemon/
+native/
+wrapper/
+.tmp/
