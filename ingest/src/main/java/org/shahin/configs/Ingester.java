@@ -4,8 +4,10 @@ public class Ingester {
     private int workerCount;
     private String dirPath;
     private String clientId;
-    public Ingester() {
+    private String topic;
+    private int pollInterval;
 
+    public Ingester() {
     }
     public Ingester(int workerCount, String dirPath) {
         this.workerCount = workerCount;
@@ -29,4 +31,19 @@ public class Ingester {
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
+
+    public String getTopic() {
+        return topic;
+    }
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public int getPollInterval() {
+        return pollInterval;
+    }
+    public void setPollInterval(int pollInterval) {
+        this.pollInterval = pollInterval;
+    }
+
 }
