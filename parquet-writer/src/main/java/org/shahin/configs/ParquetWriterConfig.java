@@ -1,13 +1,17 @@
 package org.shahin.configs;
 
-public class ParquetWriterConf {
+public class ParquetWriterConfig {
     String networkLogsTopic;
     String hdfsDirPath;
-    double parquetSizeLimit;
+    long parquetSizeLimit;
     String hdfsUrl;
     int workerNumber;
+    int pageSize;
+    long blockSize;
+    int parquetTimeout;
 
-    private ParquetWriterConf() {
+
+    private ParquetWriterConfig() {
     }
 
     public String getNetworkLogsTopic() {
@@ -21,8 +25,34 @@ public class ParquetWriterConf {
     public String getHdfsDirPath() {
         return hdfsDirPath;
     }
-    public double getParquetSizeLimit() {
+
+    public long getParquetSizeLimit() {
         return parquetSizeLimit;
+    }
+
+    public int getPageSize(){
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public long getBlockSize() {
+        return blockSize;
+    }
+
+    public void setParquetTimeout(int parquetTimeout) {
+        this.parquetTimeout = parquetTimeout;
+    }
+
+    public int getParquetTimeout() {
+        return parquetTimeout;
+    }
+
+
+    public void setBlockSize(long blockSize) {
+        this.blockSize = blockSize;
     }
 
     public int getWorkerNumber() {
@@ -37,7 +67,7 @@ public class ParquetWriterConf {
         this.hdfsDirPath = hdfsDirPath;
     }
 
-    public void setParquetSizeLimit(double parquetSizeLimit) {
+    public void setParquetSizeLimit(long parquetSizeLimit) {
         this.parquetSizeLimit = parquetSizeLimit;
     }
 

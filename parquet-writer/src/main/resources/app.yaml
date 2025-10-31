@@ -1,13 +1,15 @@
+prometheusPort: 8181
 
 kafkaConfig:
   bootstrapServers: "localhost:9092"
   groupId: "consumer-group-1"
 
 parquetWriterConf:
-  networkLogsTopic: "network-logs"
-  hdfsDirPath: "hdfs://127.0.0.1:9000/data"
-  parquetSizeLimit: 50
+  networkLogsTopic: "logs"
+  hdfsDirPath: "/net-logs"
+  parquetSizeLimit: 20
   hdfsUrl: "hdfs://localhost:9000"
-  workerNumber: 2
-
-queueCapacity: 1000
+  workerNumber: 3
+  pageSize: 1048576      # 1 MB
+  blockSize: 134217728   # 128 MB
+  parquetTimeout: 5

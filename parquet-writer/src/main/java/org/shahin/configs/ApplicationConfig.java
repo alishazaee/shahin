@@ -1,17 +1,16 @@
 package org.shahin.configs;
 
 public class ApplicationConfig {
-    private KafkaConfig kafkaConfig;
-    private ParquetWriterConf parquetWriter;
-    private int queueCapacity;
+    KafkaConfig kafkaConfig;
+    ParquetWriterConfig parquetWriter;
+    int prometheusPort;
 
     public ApplicationConfig() {
     }
 
-    public ApplicationConfig(KafkaConfig kafkaConfig, ParquetWriterConf ingester, int queueCapacity ) {
+    public ApplicationConfig(KafkaConfig kafkaConfig, ParquetWriterConfig parquetWriter) {
         this.kafkaConfig = kafkaConfig;
-        this.parquetWriter = ingester;
-        this.queueCapacity = queueCapacity;
+        this.parquetWriter = parquetWriter;
     }
 
     public KafkaConfig getKafkaConfig() {
@@ -22,19 +21,19 @@ public class ApplicationConfig {
         this.kafkaConfig = kafkaConfig;
     }
 
-    public ParquetWriterConf getParquetWriterConf() {
+    public ParquetWriterConfig getParquetWriterConf() {
         return parquetWriter;
     }
 
-    public void setParquetWriterConf(ParquetWriterConf parquetWriter) {
+    public void setParquetWriterConf(ParquetWriterConfig parquetWriter) {
         this.parquetWriter = parquetWriter;
     }
 
-    public int getQueueCapacity() {
-        return queueCapacity;
+    public int getPrometheusPort() {
+        return prometheusPort;
     }
 
-    public void setQueueCapacity(int queueCapacity) {
-        this.queueCapacity = queueCapacity;
+    public void setPrometheusPort(int prometheusPort) {
+        this.prometheusPort = prometheusPort;
     }
 }

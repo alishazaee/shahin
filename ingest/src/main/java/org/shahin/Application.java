@@ -22,7 +22,7 @@ public class Application {
     }
 
     public static void Start(ApplicationConfig appConf, BlockingQueue<File> fileQueue) throws InterruptedException {
-        KafkaProducer<Long, String> kafkaPublisher =  KafkaUtils.createProducer(
+        KafkaProducer<byte[], byte[]> kafkaPublisher =  KafkaUtils.createProducer(
                 appConf.getIngester().getClientId(),
                 appConf.getKafkaConfig());
 

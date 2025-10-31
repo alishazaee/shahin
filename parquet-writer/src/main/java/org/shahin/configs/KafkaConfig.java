@@ -1,10 +1,12 @@
 package org.shahin.configs;
 
 
+import java.util.Properties;
+
 public class KafkaConfig {
 
-    private String bootstrapServers;
-    private String groupId;
+    String bootstrapServers;
+    String groupId;
 
     public KafkaConfig() {
     }
@@ -23,16 +25,25 @@ public class KafkaConfig {
         this.bootstrapServers = bootstrapServers;
     }
 
-    public String getgroupId() {
+    public String getGroupId() {
         return groupId;
     }
 
-    public void setgroupId(String compressionType) {
-        this.groupId = compressionType;
-    }
 
     public void setGroupId(String groupId) {
         this.groupId = groupId;
+    }
+
+    public Properties getProperties() {
+        Properties properties = new Properties();
+        properties.put("bootstrap.servers", bootstrapServers);
+        properties.put("group.id", groupId);
+        properties.put("key.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+        properties.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
+        properties.put("enable.auto.commit", "false");
+        properties.put("auto.offset.reset", "earliest");
+        properties.put("max.poll.interval.ms", "30000");
+        return properties;
     }
 
     @Override

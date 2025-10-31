@@ -1,14 +1,12 @@
 package org.shahin.utils;
 import org.shahin.protobuf.NetRecordProto;
 
-import java.util.Arrays;
-
 public class Parser {
     private Parser() {
 
     }
 
-    public static String EncodeNetRecord(String[] netRecord,String recordedTime){
+    public static byte[] EncodeNetRecord(String[] netRecord, String recordedTime){
         NetRecordProto.NetRecord record =  NetRecordProto.NetRecord.newBuilder()
                 .setIpv4SrcAddr(netRecord[0])
                 .setL4SrcPort(Integer.parseInt(netRecord[1]))
@@ -20,7 +18,7 @@ public class Parser {
                 .setHour(Integer.parseInt(recordedTime.split("_")[1]))
                 .setMinute(Integer.parseInt(recordedTime.split("_")[2]))
                 .build();
-        return Arrays.toString(record.toByteArray());
+        return record.toByteArray();
     }
 
 }

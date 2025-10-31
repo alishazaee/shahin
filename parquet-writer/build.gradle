@@ -37,12 +37,22 @@ dependencies {
 
     implementation project(':protobuf')
 
+    implementation project(':consumer-wrapper')
+
     testImplementation 'org.mockito:mockito-core:5.19.0'
 
     runtimeOnly 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4'
 
     implementation "org.apache.avro:avro-protobuf:1.11.3"
     implementation "com.google.protobuf:protobuf-java:3.24.3"
+
+    implementation 'io.prometheus:simpleclient_dropwizard:0.16.0'
+
+    implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
+    testImplementation 'org.apache.hadoop:hadoop-minicluster:3.4.2'
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
 application {

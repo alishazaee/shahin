@@ -6,9 +6,13 @@ plugins {
     id 'application'
     id 'buildlogic.java-conventions'
 }
+repositories {
+    mavenCentral()
+}
+
 
 dependencies {
-    implementation "com.google.protobuf:protobuf-java:3.24.3"
+    implementation 'com.google.protobuf:protobuf-java:4.33.0'
 }
 
 description = 'protobuf'

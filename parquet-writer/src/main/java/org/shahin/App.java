@@ -1,41 +1,52 @@
 package org.shahin;
 
-import org.apache.kafka.clients.consumer.Consumer;
-import org.shahin.eventhadnler.KafkaUtils;
-import org.shahin.protobuf.NetRecordProto;
+import com.codahale.metrics.MetricRegistry;
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.dropwizard.DropwizardExports;
+import io.prometheus.client.exporter.HTTPServer;
 import org.shahin.configs.ApplicationConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 
-import org.shahin.service.AckRecord;
-import org.shahin.service.KafkaRecord;
-import org.shahin.service.Reader;
-import org.shahin.service.Writer;
+import org.shahin.protobuf.NetRecordProto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 public class App
 {
 
-    public static void Start(ApplicationConfig config) {
-
-        BlockingQueue<KafkaRecord<NetRecordProto.NetRecord>> Records = new LinkedBlockingQueue<>(config.getQueueCapacity());
-
-        BlockingQueue<AckRecord> Acks = new LinkedBlockingQueue<>(config.getQueueCapacity()*3);
-
-
-        Reader reader =new Reader(config,Records,Acks);
-        reader.Start();
-
-        ExecutorService writerExecutor = Executors.newFixedThreadPool(config.getParquetWriterConf().getWorkerNumber());
-        for(int i =0; i< config.getParquetWriterConf().getWorkerNumber(); i++){
-            writerExecutor.execute(new Writer(config,Records,Acks));
+    public static void Start(ApplicationConfig config)  {
+        Logger logger = LoggerFactory.getLogger(KafkaParquetWriter.class);
+        MetricRegistry metricRegistry = new MetricRegistry();
+        KafkaParquetWriter<NetRecordProto.NetRecord> parquetWriter = new KafkaParquetWriter.KafkaParquetWriterBuilder<NetRecordProto.NetRecord>()
+                .setBlockSize(config.getParquetWriterConf().getBlockSize())
+                .setDataSizeLimit(config.getParquetWriterConf().getParquetSizeLimit())
+                .setPageSize(config.getParquetWriterConf().getPageSize())
+                .setTopic(config.getParquetWriterConf().getNetworkLogsTopic())
+                .setRetryNumber(3)
+                .setThreadCount(config.getParquetWriterConf().getWorkerNumber())
+                .setParquetTimeoutInMinute(config.getParquetWriterConf().getParquetTimeout())
+                .setParser(NetRecordProto.NetRecord.parser())
+                .setHdfsBasePath(config.getParquetWriterConf().getHdfsUrl(), config.getParquetWriterConf().getHdfsDirPath())
+                .setProtoClass(NetRecordProto.NetRecord.class)
+                .setProperties(config.getKafkaConfig().getProperties())
+                .setRegistry(metricRegistry)
+                .build();
+        parquetWriter.start();
+        CollectorRegistry prometheusRegistry = new CollectorRegistry();
+        prometheusRegistry.register(new DropwizardExports(metricRegistry));
+        try {
+             new HTTPServer.Builder()
+                    .withPort(config.getPrometheusPort())
+                    .withRegistry(prometheusRegistry)
+                    .build();
+        }
+        catch (IOException e) {
+            logger.error("Unable to start prometheus server ", e.getMessage());
         }
 
     }
@@ -53,6 +64,7 @@ public class App
 
         ApplicationConfig config = loadConfig(Path.of(filePath));
         Start(config);
+
     }
     public static ApplicationConfig loadConfig(Path yamlPath) {
         ApplicationConfig config;

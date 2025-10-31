@@ -12,18 +12,18 @@ import java.util.concurrent.BlockingQueue;
 
 public class Worker implements Runnable {
     private  BlockingQueue<File> fileQueue;
-    private  KafkaProducer<Long,String> producer;
+    private  KafkaProducer<byte[],byte[]> producer;
     private final Logger logger;
-    public Worker(BlockingQueue<File> fileQueue , KafkaProducer<Long,String> producer) {
+    public Worker(BlockingQueue<File> fileQueue , KafkaProducer<byte[],byte[]> producer) {
         this.fileQueue = fileQueue;
         this.producer = producer;
         this.logger = LoggerFactory.getLogger(Worker.class);
     }
 
-    public KafkaProducer<Long,String> getProducer() {
+    public KafkaProducer<byte[],byte[]> getProducer() {
         return producer;
     }
-    public void setProducer(KafkaProducer<Long,String> producer) {
+    public void setProducer(KafkaProducer<byte[],byte[]> producer) {
         this.producer = producer;
     }
     public BlockingQueue<File> getFileQueue() {
@@ -54,8 +54,8 @@ public class Worker implements Runnable {
                     lineNumber++;
                        try {
                            String Time = CSVReader.getTime(file);
-                           String EncodedStr = Parser.EncodeNetRecord(line.split(","), Time);
-                           ProducerRecord<Long, String> record = new ProducerRecord<>("network-logs", lineNumber, EncodedStr);
+                           byte[] EncodedStr = Parser.EncodeNetRecord(line.split(","), Time);
+                           ProducerRecord<byte[], byte[]> record = new ProducerRecord<>("logs", "".getBytes(), EncodedStr);
                            getProducer().send(record,(metadata, exception) -> {
                                if( exception != null ) {
                                    logger.error(exception.getMessage());
