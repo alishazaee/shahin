@@ -1,45 +1,42 @@
 package org.shahin;
-
-import org.apache.kafka.clients.producer.KafkaProducer;
+import com.sun.net.httpserver.HttpServer;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import org.shahin.configs.ApplicationConfig;
-import org.shahin.eventhandler.KafkaUtils;
-import org.shahin.utils.CSVReader;
-import org.shahin.watcher.Watcher;
-import org.shahin.watcher.Worker;
+import org.shahin.utils.NetRecordParser;
 import org.yaml.snakeyaml.Yaml;
-
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Application {
     private Application(){
     }
 
-    public static void Start(ApplicationConfig appConf, BlockingQueue<File> fileQueue) throws InterruptedException {
-        KafkaProducer<byte[], byte[]> kafkaPublisher =  KafkaUtils.createProducer(
-                appConf.getIngester().getClientId(),
-                appConf.getKafkaConfig());
+    public static void start(ApplicationConfig appConf) {
+        PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 
-        Watcher watcher = new Watcher(
-                appConf.getIngester().getDirPath(),
-                fileQueue
-        );
-        Thread watcherThread = new Thread(watcher);
-        watcherThread.start();
-
-        ExecutorService pool = Executors.newFixedThreadPool(appConf.getIngester().getWorkerCount());
-
-        for(int i = 0; i < appConf.getIngester().getWorkerCount(); i++){
-            Worker worker = new Worker(fileQueue,kafkaPublisher);
-            pool.execute(worker);
+        NetRecordParser parser = new NetRecordParser();
+        KafkaIngester ingester = new KafkaIngester(parser, appConf,prometheusRegistry);
+        ingester.start();
+        Watcher watcher = new Watcher(ingester::ingest,appConf.getIngester());
+        watcher.start();
+        try {
+            HttpServer server = HttpServer.create(new InetSocketAddress(8383), 0);
+            server.createContext("/metrics", httpExchange -> {
+                String response = prometheusRegistry.scrape();
+                httpExchange.sendResponseHeaders(200, response.getBytes().length);
+                httpExchange.getResponseBody().write(response.getBytes());
+                httpExchange.close();
+            });
+            server.start();
+        }
+        catch (IOException e) {
 
         }
+
     }
 
     public static ApplicationConfig loadConfig(Path yamlPath) {
