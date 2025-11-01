@@ -1,5 +1,7 @@
 package org.shahin;
 
+import java.util.Optional;
+
 public interface Parser {
-    byte[] Encode(String line);
+    Optional<byte[]> encode(String line);
 }

@@ -12,15 +12,15 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-public class Watcher {
+public class Watcher  {
     Consumer<Path> pathConsumer;
     FileAlterationMonitor monitor;
-    private final static Logger logger = LoggerFactory.getLogger(KafkaIngester.class);
+    private final static Logger logger = LoggerFactory.getLogger(Watcher.class);
 
     public Watcher(Consumer<Path> pathConsumer, Ingester ingesterConfig) {
         this.pathConsumer = pathConsumer;
         FileAlterationObserver observer = new FileAlterationObserver(ingesterConfig.getDirPath());
-        FileAlterationMonitor monitor = new FileAlterationMonitor(ingesterConfig.getPollInterval());
+        this.monitor = new FileAlterationMonitor(ingesterConfig.getPollInterval());
         FileAlterationListener listener = new FileAlterationListenerAdaptor() {
             @Override
             public void onFileCreate(File file) {
@@ -39,7 +39,22 @@ public class Watcher {
         try {
             monitor.start();
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            logger.error(e.getMessage());
+            close();
+            throw new AssertionError(e);
+        }
+    }
+
+
+    public void close() {
+        if (monitor != null) {
+            try {
+                monitor.stop();
+            }
+            catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+
         }
     }
 }

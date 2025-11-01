@@ -48,6 +48,8 @@ dependencies {
 
     implementation 'io.prometheus:simpleclient_dropwizard:0.16.0'
 
+    implementation 'io.dropwizard.metrics:metrics-core:4.2.36'
+
     implementation 'io.prometheus:simpleclient_httpserver:0.16.0'
     testImplementation 'org.apache.hadoop:hadoop-minicluster:3.4.2'
 

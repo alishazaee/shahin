@@ -1,9 +1,13 @@
 package org.shahin;
+import com.sun.net.httpserver.HttpServer;
+import io.micrometer.prometheusmetrics.PrometheusConfig;
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry;
 import org.shahin.configs.ApplicationConfig;
 import org.shahin.utils.NetRecordParser;
 import org.yaml.snakeyaml.Yaml;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -12,12 +16,27 @@ public class Application {
     }
 
     public static void start(ApplicationConfig appConf) {
+        PrometheusMeterRegistry prometheusRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+
         NetRecordParser parser = new NetRecordParser();
-        try(KafkaIngester ingester = new KafkaIngester(parser, appConf)){
-            ingester.start();
-            Watcher watcher = new Watcher(ingester::ingest,appConf.getIngester());
-            watcher.start();
+        KafkaIngester ingester = new KafkaIngester(parser, appConf,prometheusRegistry);
+        ingester.start();
+        Watcher watcher = new Watcher(ingester::ingest,appConf.getIngester());
+        watcher.start();
+        try {
+            HttpServer server = HttpServer.create(new InetSocketAddress(8383), 0);
+            server.createContext("/metrics", httpExchange -> {
+                String response = prometheusRegistry.scrape();
+                httpExchange.sendResponseHeaders(200, response.getBytes().length);
+                httpExchange.getResponseBody().write(response.getBytes());
+                httpExchange.close();
+            });
+            server.start();
         }
+        catch (IOException e) {
+
+        }
+
     }
 
     public static ApplicationConfig loadConfig(Path yamlPath) {

@@ -3,8 +3,8 @@ kafkaConfig:
   compressionType: "gzip"
 
 ingester:
-  workerCount: 2
+  workerCount: 3
   dirPath: "/tmp"
   clientId: "client-1"
-  topic: "log"
+  topic: "logs"
   pollInterval: 1000
