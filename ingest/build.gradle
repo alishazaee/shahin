@@ -4,7 +4,17 @@
 
 plugins {
     id 'application'
-    id 'buildlogic.java-conventions'
+    id 'com.google.cloud.tools.jib' version '3.4.0'
+
+}
+group = 'org.shahin'
+version = '1.0-SNAPSHOT'
+
+tasks.register('printVersion') {
+    def v = project.version
+    doLast {
+        println v
+    }
 }
 
 dependencies {
@@ -21,16 +31,24 @@ dependencies {
     implementation 'io.micrometer:micrometer-core:1.15.5'
     implementation 'io.micrometer:micrometer-registry-prometheus:1.15.5'
 
-
 }
 repositories {
     mavenCentral()
 }
 
 application {
-    // Define the main class for the application.
     mainClass = 'org.shahin.Main'
 }
+
+jib {
+    to {
+        image = "${System.getProperty("NEXUS_URL")}/${project.name}:${project.version}"
+    }
+    container {
+        mainClass = "org.shahin.Main"
+    }
+}
+
 
 jar {
     manifest {
@@ -39,6 +57,7 @@ jar {
         )
     }
 }
+
 
 
 description = 'ingest'
