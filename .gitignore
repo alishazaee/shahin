@@ -8,5 +8,4 @@ buildSrc/
 caches/
 daemon/
 native/
-wrapper/
 .tmp/
