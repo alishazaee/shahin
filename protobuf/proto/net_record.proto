@@ -1,0 +1,23 @@
+package protobuf;
+option java_package = "org.shahin.protobuf";
+option java_outer_classname = "NetRecordProto";
+
+message NetRecord {
+  required uint64 timestamp = 1;
+
+  required string ipv4_src_addr = 2;
+  required int32 l4_src_port = 3;
+
+  required string ipv4_dst_addr = 4;
+  required int32 l4_dst_port = 5;
+
+  required int32 in_bytes = 6;
+  required int32 out_bytes = 7;
+
+  required string sender_first_name = 8;
+  required string sender_last_name = 9;
+  required string sender_national_id = 10;
+  required string sender_latitude = 11;
+  required string sender_longitude = 12;
+
+}
